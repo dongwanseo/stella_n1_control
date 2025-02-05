@@ -20,7 +20,7 @@ class RoadDetectionNode(Node):
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
 
         # 카메라 데이터 구독 & 노면 상태 Publish
-        self.image_sub = self.create_subscription(Image, '/camera/image_raw', self.image_callback, qos_profile)
+        self.image_sub = self.create_subscription(Image, '/image_raw', self.image_callback, qos_profile)
         self.road_condition_pub = self.create_publisher(String, '/road_condition', 10)
 
         self.bridge = CvBridge()
