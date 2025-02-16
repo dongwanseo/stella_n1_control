@@ -22,6 +22,14 @@ class VelocityControlNode(Node):
         self.vel_pub.publish(twist)
 
         self.get_logger().info(f'노면 상태: {road_type}, 속도: {speed:.2f} m/s')
+    def destroy_node(self):
+        """ 노드 종료 시 모터 정지 명령 전송 """
+        twist = Twist()
+        twist.linear.x = 0.0  # 정지
+        twist.angular.z = 0.0
+        self.vel_pub.publish(twist)  # 정지 명령 퍼블리시
+        self.get_logger().info("🛑 노드 종료: 모터 정지 명령 전송 완료")
+        super().destroy_node()
 
     def get_speed_from_condition(self, road_type):
         """ 노면 상태에 따라 속도 설정 """
@@ -36,9 +44,13 @@ class VelocityControlNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = VelocityControlNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)  # 노드 실행
+    except KeyboardInterrupt:
+        node.get_logger().info("🛑 KeyboardInterrupt: 노드 종료 중...")
+    finally:
+        node.destroy_node()  # 노드 종료 시 모터 정지
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
